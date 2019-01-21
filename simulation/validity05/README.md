@@ -1,3 +1,2 @@
-nsieve = 20.
+nsieve = 20  
 n2 = 400
-

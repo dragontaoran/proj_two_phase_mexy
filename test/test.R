@@ -133,7 +133,7 @@ while (nsim <= NSIM) {
     data$X = data$X/10
     # rescale data
     
-    res = smle_MEXY(Y="Y", X="X", Y_tilde="Y_tilde", X_tilde="X_tilde", Bspline=colnames(Bspline), data = data, hn_scale=0.09)
+    res = smle_MEXY(Y="Y", X="X", Y_tilde="Y_tilde", X_tilde="X_tilde", Bspline=colnames(Bspline), data = data, hn_scale=0.5)
     if (sum(is.na(res$coefficients)) == 0) {
         results_est[nsim,] = t(res$coefficients[,1])
         results_se[nsim,] = t(res$coefficients[,2])
