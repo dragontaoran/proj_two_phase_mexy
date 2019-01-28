@@ -1,7 +1,7 @@
 p_set = c(0.1, 0.3, 0.6, 1)
 rho_set = c(-0.5, -0.3, 0, 0.3, 0.5)
 hn_set = c(1)
-nsieve_set = c(20)
+nsieve_set = c(10, 15, 25, 30)
 beta = 0.4
 
 z975 = qnorm(0.975)
