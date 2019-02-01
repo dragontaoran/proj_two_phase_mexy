@@ -1,0 +1,77 @@
+
+R version 3.4.3 (2017-11-30) -- "Kite-Eating Tree"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> p_set = c(0.6, 1)
+> rho_set = c(0.3, 0.5)
+> sigma_set = c(0.5, 1)
+> design_set = c("srs", "ssrs")
+> hn_set = c(0.1)
+> nsieve_set = c(10)
+> NJOB = 10
+> NSIM = 1000
+> 
+> dir.create("results", showWarnings=FALSE)
+> 
+> for(nsieve in nsieve_set) {
++     for (hn in hn_set) {
++         for (design in design_set) {
++             for (sigma in sigma_set) {
++                 for (p in p_set) {
++                     for (rho in rho_set) {
++                         prefix = paste0("nsieve", nsieve, "_hn", hn, "_", design, "_sigma", sigma, "_rho", rho, "_p", p)
++                         
++                         load(paste0("res/", prefix, "/1.RData"))
++                         tmp = results[1:NSIM,]
++                         
++                         for (njob in 2:NJOB) {
++                             load(paste0("res/", prefix, "/", njob, ".RData"))
++                             tmp = rbind(tmp, results[1:NSIM,])
++                         }
++                         
++                         results = tmp
++                         
++                         print(dim(results))
++                         
++                         save(list="results", file=paste0("results/", prefix, ".RData"))
++                     }
++                 }                  
++             }
++         }
++     }
++ }
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+[1] 10000     4
+> 
+> proc.time()
+   user  system elapsed 
+  0.557   0.087   1.334 
