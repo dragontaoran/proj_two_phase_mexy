@@ -38,7 +38,7 @@ for (rho in rho_set) {
                 simU = simS*error[,2]
                 simW = simS*error[,1]
                 simY_tilde = simY+simW
-                simX_tilde = simX*exp(simU)
+                simX_tilde = simX*exp(simU)/(1+exp(simU))
                 
                 id_phase2 = sample(n, n2)
                 simY[-id_phase2] = NA

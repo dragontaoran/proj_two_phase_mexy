@@ -3,7 +3,7 @@
 p_set=("0.1" "0.3" "0.6" "1")
 rho_set=("-0.5" "-0.3" "0" "0.3" "0.5")
 hn_set=("0.1")
-nsieve_set=("20")
+nsieve_set=("20" "30")
 dir="res"
 
 mkdir -p ${dir}

@@ -1,3 +1,4 @@
-nsieve = 20  
+nsieve = 20, 30  
 n2 = 400  
-When both the errors in Y and X are multiplicative, both methods are biased.   
+When X has multiplicative error.  
+
