@@ -1,0 +1,1 @@
+`nsieve = 20`. Simulation results when `n2` is `50`, `100`, `200`, or `300`. The choice of `hn` depends on `n2`. In general, `hn` is larger when `n2` is smaller. This is because when `n2` is smaller, the likelihood curve in the neighborhood of MLE is flatter.
