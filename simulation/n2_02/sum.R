@@ -1,9 +1,9 @@
 p = 0.6
 rho = 0.3
-hn_set = c(35, 40, 45)
+hn_set = c(30, 40, 60)
 nsieve = 20
 NJOB = 100
-n2_set = c(50)
+n2_set = c(25)
 
 dir.create("results", showWarnings=FALSE)
 

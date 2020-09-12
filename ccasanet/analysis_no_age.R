@@ -73,8 +73,44 @@ tab1$cor_xstar_u_art = c(cor(dat$w[id_n2a], dat$w[id_n2a]-dat$x[id_n2a]),
                          cor(dat$w[id_n2h], dat$w[id_n2h]-dat$x[id_n2h]),
                          cor(dat$w[id_n2m], dat$w[id_n2m]-dat$x[id_n2m]),
                          0)
+
+### check correlation between errors and sex
+dat.m = dat[which(dat$male == 1),]
+dat.w = dat[which(dat$male == 0),]
+
+id_n2a_m = which(dat.m$v == 1 & dat.m$cat == "a")
+id_n2b_m = which(dat.m$v == 1 & dat.m$cat == "b")
+id_n2c_m = which(dat.m$v == 1 & dat.m$cat == "c")
+id_n2h_m = which(dat.m$v == 1 & dat.m$cat == "h")
+id_n2m_m = which(dat.m$v == 1 & dat.m$cat == "m")
+id_n2p_m = which(dat.m$v == 1 & dat.m$cat == "p")
+
+id_n2a_w = which(dat.w$v == 1 & dat.w$cat == "a")
+id_n2b_w = which(dat.w$v == 1 & dat.w$cat == "b")
+id_n2c_w = which(dat.w$v == 1 & dat.w$cat == "c")
+id_n2h_w = which(dat.w$v == 1 & dat.w$cat == "h")
+id_n2m_w = which(dat.w$v == 1 & dat.w$cat == "m")
+id_n2p_w = which(dat.w$v == 1 & dat.w$cat == "p")
+
+tab1$n2_male = aggregate(dat.m$v, list(dat.m$cat), FUN=sum)$x
+tab1$n2_error_art_male = c(sum(dat.m$w[id_n2a_m] != dat.m$x[id_n2a_m]),
+                           sum(dat.m$w[id_n2b_m] != dat.m$x[id_n2b_m]),
+                           sum(dat.m$w[id_n2c_m] != dat.m$x[id_n2c_m]),
+                           sum(dat.m$w[id_n2h_m] != dat.m$x[id_n2h_m]),
+                           sum(dat.m$w[id_n2m_m] != dat.m$x[id_n2m_m]),
+                           sum(dat.m$w[id_n2p_m] != dat.m$x[id_n2p_m]))
+
+tab1$n2_female = aggregate(dat.w$v, list(dat.w$cat), FUN=sum)$x
+tab1$n2_error_art_female = c(sum(dat.w$w[id_n2a_w] != dat.w$x[id_n2a_w]),
+                           sum(dat.w$w[id_n2b_w] != dat.w$x[id_n2b_w]),
+                           sum(dat.w$w[id_n2c_w] != dat.w$x[id_n2c_w]),
+                           sum(dat.w$w[id_n2h_w] != dat.w$x[id_n2h_w]),
+                           sum(dat.w$w[id_n2m_w] != dat.w$x[id_n2m_w]),
+                           sum(dat.w$w[id_n2p_w] != dat.w$x[id_n2p_w]))
+
 tab1$site.new = c("Site C", "Site D", "Site B", "Site A", "Site E", "Site F")
 tab1 = tab1[order(tab1$site.new),]
+
 
 nsieve_a = 5
 nsieve_c = 2

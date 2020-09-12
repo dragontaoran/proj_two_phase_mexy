@@ -1,0 +1,333 @@
+
+R version 3.6.0 (2019-04-26) -- "Planting of a Tree"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> ###################################################################################
+> ######   Analyses that will be in the paper (exclude age)
+> ######	 Add analysis using the validation sample only
+> ###################################################################################
+> 
+> rm(list=ls())
+> gc()
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 283115 15.2     641508 34.3   509826 27.3
+Vcells 474285  3.7    8388608 64.0  1753026 13.4
+> load("analysis-data-CCASAnet-audit.rda")
+> 
+> z975 = qnorm(0.975)
+> 
+> #### START: Moment Estimator ######################################################
+> source("audit-correct-cov.R")
+> 
+> z1 = ifelse(site=="argentina", 1, 0)
+> z2 = ifelse(site=="brazil", 1, 0)
+> z3 = ifelse(site=="chile", 1, 0)
+> z4 = ifelse(site=="honduras", 1, 0)
+> z5 = ifelse(site=="mexico", 1, 0)
+> z = cbind(z1, z2, z3, z4, z5)
+> 
+> cat = ifelse(site=="argentina", "a",
++              ifelse(site=="brazil", "b",
++                     ifelse(site=="chile", "c",
++                            ifelse(site=="honduras", "h",
++                                   ifelse(site=="mexico", "m",
++                                         ifelse(site=="peru", "p", NA)
++                                         )
++                                   )
++                            )
++                     )
++              )
+> poss.cat = c("a", "b", "c", "h", "m", "p")
+> p.cat = table(cat)/length(cat)
+> 
+> res_naive = summary(lm(ystar~w+z+male))
+> res_naive
+
+Call:
+lm(formula = ystar ~ w + z + male)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-12.4016  -4.0223   0.0664   3.6827  21.8977 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  5.73166    2.29463   2.498 0.012551 *  
+w            0.11698    0.06406   1.826 0.067944 .  
+zz1          2.75873    0.28370   9.724  < 2e-16 ***
+zz2          2.38904    0.40173   5.947 3.07e-09 ***
+zz3          0.93244    0.33925   2.749 0.006025 ** 
+zz4          1.28083    0.37777   3.391 0.000707 ***
+zz5          0.57635    0.33219   1.735 0.082850 .  
+male        -0.73580    0.22756  -3.234 0.001237 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 5.176 on 2807 degrees of freedom
+Multiple R-squared:  0.04465,	Adjusted R-squared:  0.04227 
+F-statistic: 18.74 on 7 and 2807 DF,  p-value: < 2.2e-16
+
+> 
+> res_validation = summary(lm(y~x+z+male, subset=which(v == 1)))
+> res_validation
+
+Call:
+lm(formula = y ~ x + z + male, subset = which(v == 1))
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-9.7967 -3.7173 -0.2804  3.4404 14.5599 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)  
+(Intercept) 18.15469    8.03250   2.260   0.0248 *
+x           -0.24827    0.22428  -1.107   0.2695  
+zz1          2.45240    1.19935   2.045   0.0420 *
+zz2          1.20889    1.86403   0.649   0.5173  
+zz3         -1.33986    1.30819  -1.024   0.3068  
+zz4         -0.09273    1.32761  -0.070   0.9444  
+zz5          0.70474    1.21979   0.578   0.5640  
+male         0.17672    0.86220   0.205   0.8378  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 4.989 on 226 degrees of freedom
+Multiple R-squared:  0.07189,	Adjusted R-squared:  0.04314 
+F-statistic: 2.501 on 7 and 226 DF,  p-value: 0.01711
+
+> 
+> res_sy = audit.correct.cov.vdependent.2plus(ystar, w, cbind(z,male), v, x, y, p.cat, cat, poss.cat)
+> res_sy
+$CorrectEst
+           [,1]
+[1,]  0.1867361
+[2,]  2.8214814
+[3,]  2.6135199
+[4,]  1.0634770
+[5,]  1.3095615
+[6,]  0.6360352
+[7,] -0.7398171
+
+$VarCorrectEst
+             [,1]        [,2]         [,3]         [,4]        [,5]        [,6]
+[1,] 0.0085359925 0.006179594 0.0249944794  0.015647198 0.003223780  0.00680211
+[2,] 0.0061795936 0.090418679 0.0549158922  0.047623215 0.039810121  0.04116271
+[3,] 0.0249944794 0.054915892 0.2006047067  0.083008981 0.046407250  0.05702293
+[4,] 0.0156471981 0.047623215 0.0830089808  0.117135640 0.041981653  0.05122392
+[5,] 0.0032237800 0.039810121 0.0464072499  0.041981653 0.108668568  0.03844889
+[6,] 0.0068021101 0.041162709 0.0570229318  0.051223921 0.038448892  0.10445033
+[7,] 0.0003617864 0.004828369 0.0002226999 -0.007807034 0.006478356 -0.01008529
+              [,7]
+[1,]  0.0003617864
+[2,]  0.0048283690
+[3,]  0.0002226999
+[4,] -0.0078070342
+[5,]  0.0064783557
+[6,] -0.0100852874
+[7,]  0.0532374072
+
+> #### END: Moment Estimator ########################################################
+> 
+> #### START: SMLE ##################################################################
+> library(TwoPhaseReg)
+Loading required package: lme4
+Loading required package: Matrix
+> library(splines)
+> dat = data.frame(ystar, w, z, male, v, x, y, cat)
+> dat$y[v == 0] = NA
+> dat$x[v == 0] = NA
+> dat$bs_a = as.numeric(cat == "a")
+> dat$bs_b = as.numeric(cat == "b")
+> dat$bs_c = as.numeric(cat == "c")
+> dat$bs_h = as.numeric(cat == "h")
+> dat$bs_m = as.numeric(cat == "m")
+> dat$bs_p = as.numeric(cat == "p")
+> 
+> id_n2a = which(dat$v == 1 & dat$cat == "a")
+> id_n2b = which(dat$v == 1 & dat$cat == "b")
+> id_n2c = which(dat$v == 1 & dat$cat == "c")
+> id_n2h = which(dat$v == 1 & dat$cat == "h")
+> id_n2m = which(dat$v == 1 & dat$cat == "m")
+> id_n2p = which(dat$v == 1 & dat$cat == "p")
+> 
+> tab1 = data.frame(site=names(table(dat$cat)), n=as.vector(table(dat$cat)))
+> tab1$n2 = aggregate(dat$v, list(dat$cat), FUN=sum)$x
+> tab1$n2_error_art = c(sum(dat$w[id_n2a] != dat$x[id_n2a]),
++                       sum(dat$w[id_n2b] != dat$x[id_n2b]),
++                       sum(dat$w[id_n2c] != dat$x[id_n2c]),
++                       sum(dat$w[id_n2h] != dat$x[id_n2h]),
++                       sum(dat$w[id_n2m] != dat$x[id_n2m]),
++                       sum(dat$w[id_n2p] != dat$x[id_n2p]))
+> tab1$cor_xstar_u_art = c(cor(dat$w[id_n2a], dat$w[id_n2a]-dat$x[id_n2a]),
++                          cor(dat$w[id_n2b], dat$w[id_n2b]-dat$x[id_n2b]),
++                          cor(dat$w[id_n2c], dat$w[id_n2c]-dat$x[id_n2c]),
++                          cor(dat$w[id_n2h], dat$w[id_n2h]-dat$x[id_n2h]),
++                          cor(dat$w[id_n2m], dat$w[id_n2m]-dat$x[id_n2m]),
++                          0)
+> 
+> ### check correlation between errors and sex
+> dat.m = dat[which(dat$male == 1),]
+> dat.w = dat[which(dat$male == 0),]
+> 
+> id_n2a_m = which(dat.m$v == 1 & dat.m$cat == "a")
+> id_n2b_m = which(dat.m$v == 1 & dat.m$cat == "b")
+> id_n2c_m = which(dat.m$v == 1 & dat.m$cat == "c")
+> id_n2h_m = which(dat.m$v == 1 & dat.m$cat == "h")
+> id_n2m_m = which(dat.m$v == 1 & dat.m$cat == "m")
+> id_n2p_m = which(dat.m$v == 1 & dat.m$cat == "p")
+> 
+> id_n2a_w = which(dat.w$v == 1 & dat.w$cat == "a")
+> id_n2b_w = which(dat.w$v == 1 & dat.w$cat == "b")
+> id_n2c_w = which(dat.w$v == 1 & dat.w$cat == "c")
+> id_n2h_w = which(dat.w$v == 1 & dat.w$cat == "h")
+> id_n2m_w = which(dat.w$v == 1 & dat.w$cat == "m")
+> id_n2p_w = which(dat.w$v == 1 & dat.w$cat == "p")
+> 
+> tab1$n2_male = aggregate(dat.m$v, list(dat.m$cat), FUN=sum)$x
+> tab1$n2_error_art_male = c(sum(dat.m$w[id_n2a_m] != dat.m$x[id_n2a_m]),
++                            sum(dat.m$w[id_n2b_m] != dat.m$x[id_n2b_m]),
++                            sum(dat.m$w[id_n2c_m] != dat.m$x[id_n2c_m]),
++                            sum(dat.m$w[id_n2h_m] != dat.m$x[id_n2h_m]),
++                            sum(dat.m$w[id_n2m_m] != dat.m$x[id_n2m_m]),
++                            sum(dat.m$w[id_n2p_m] != dat.m$x[id_n2p_m]))
+> 
+> tab1$n2_female = aggregate(dat.w$v, list(dat.w$cat), FUN=sum)$x
+> tab1$n2_error_art_female = c(sum(dat.w$w[id_n2a_w] != dat.w$x[id_n2a_w]),
++                            sum(dat.w$w[id_n2b_w] != dat.w$x[id_n2b_w]),
++                            sum(dat.w$w[id_n2c_w] != dat.w$x[id_n2c_w]),
++                            sum(dat.w$w[id_n2h_w] != dat.w$x[id_n2h_w]),
++                            sum(dat.w$w[id_n2m_w] != dat.w$x[id_n2m_w]),
++                            sum(dat.w$w[id_n2p_w] != dat.w$x[id_n2p_w]))
+> 
+> tab1$site.new = c("Site C", "Site D", "Site B", "Site A", "Site E", "Site F")
+> tab1 = tab1[order(tab1$site.new),]
+> 
+> 
+> nsieve_a = 5
+> nsieve_c = 2
+> nsieve_h = 2
+> nsieve_m = 3
+> 
+> Bspline_a = bs(dat$w[dat$cat == "a"], df=nsieve_a, degree=1, Boundary.knots=range(dat$w[dat$cat == "a"]), intercept=TRUE)
+> Bspline_c = bs(dat$w[dat$cat == "c"], df=nsieve_c, degree=1, Boundary.knots=range(dat$w[dat$cat == "c"]), intercept=TRUE)
+> Bspline_h = bs(dat$w[dat$cat == "h"], df=nsieve_h, degree=1, Boundary.knots=range(dat$w[dat$cat == "h"]), intercept=TRUE)
+> Bspline_m = bs(dat$w[dat$cat == "m"], df=nsieve_m, degree=1, Boundary.knots=range(dat$w[dat$cat == "m"]), intercept=TRUE)
+> dat$bs_a1 = 0
+> dat$bs_a2 = 0
+> dat$bs_a3 = 0
+> dat$bs_a4 = 0
+> dat$bs_a5 = 0
+> dat$bs_a6 = 0
+> dat$bs_a7 = 0
+> dat$bs_a8 = 0
+> dat$bs_a9 = 0
+> dat$bs_a10 = 0
+> dat[dat$cat == "a", paste0("bs_a", 1:nsieve_a)] = Bspline_a
+> dat$bs_c1 = 0
+> dat$bs_c2 = 0
+> dat$bs_c3 = 0
+> dat$bs_c4 = 0
+> dat[dat$cat == "c", paste0("bs_c", 1:nsieve_c)] = Bspline_c
+> dat$bs_h1 = 0
+> dat$bs_h2 = 0
+> dat$bs_h3 = 0
+> dat[dat$cat == "h", paste0("bs_h", 1:nsieve_h)] = Bspline_h
+> dat$bs_m1 = 0
+> dat$bs_m2 = 0
+> dat$bs_m3 = 0
+> dat$bs_m4 = 0
+> dat$bs_m5 = 0
+> dat$bs_m6 = 0
+> dat$bs_m7 = 0
+> dat$bs_m8 = 0
+> dat$bs_m9 = 0
+> dat$bs_m10 = 0
+> dat[dat$cat == "m", paste0("bs_m", 1:nsieve_m)] = Bspline_m
+> 
+> res_smle = smle_MEXY(Y="y", X="x", Y_tilde="ystar", X_tilde="w", Z=c("z1", "z2", "z3", "z4", "z5", "male"),
++                 Bspline=paste0("bs_", c(paste0("a", 1:nsieve_a), "b", paste0("c", 1:nsieve_c), paste0("h", 1:nsieve_h), paste0("m", 1:nsieve_m), "p")), data=dat, hn_scale=0.05)
+> res_smle
+$coefficients
+            Estimate         SE Statistic      p-value
+Intercept  3.7805928 2.38668765  1.584033 1.131861e-01
+x          0.1737263 0.06722678  2.584183 9.761010e-03
+z1         2.4337175 0.30540314  7.968869 1.554312e-15
+z2         2.4942357 0.39994548  6.236439 4.476430e-10
+z3         0.9040110 0.34358187  2.631137 8.509969e-03
+z4         1.1102780 0.39239164  2.829515 4.661862e-03
+z5         0.6272058 0.33786358  1.856388 6.339832e-02
+male      -0.7249976 0.22684873 -3.195952 1.393703e-03
+
+$sigma
+[1] 5.101971
+
+$covariance
+            [,1]          [,2]          [,3]         [,4]         [,5]
+[1,]  5.69627795 -0.1594774057 -0.0950329716 -0.509539627 -0.281150973
+[2,] -0.15947741  0.0045194399  0.0014591058  0.013176788  0.006917163
+[3,] -0.09503297  0.0014591058  0.0932710803  0.047399775  0.045288800
+[4,] -0.50953963  0.0131767877  0.0473997753  0.159956386  0.062863686
+[5,] -0.28115097  0.0069171626  0.0452887998  0.062863686  0.118048500
+[6,] -0.04160413 -0.0001428947  0.0432468895  0.042866279  0.042038898
+[7,] -0.12910333  0.0026159739  0.0438500422  0.050296437  0.048502746
+[8,] -0.02582241 -0.0002997866  0.0005042906  0.001284956 -0.008918013
+              [,6]         [,7]          [,8]
+[1,] -0.0416041284 -0.129103326 -0.0258224099
+[2,] -0.0001428947  0.002615974 -0.0002997866
+[3,]  0.0432468895  0.043850042  0.0005042906
+[4,]  0.0428662791  0.050296437  0.0012849563
+[5,]  0.0420388976  0.048502746 -0.0089180135
+[6,]  0.1539711972  0.042114930  0.0050625090
+[7,]  0.0421149304  0.114151799 -0.0090006245
+[8,]  0.0050625090 -0.009000624  0.0514603477
+
+$converge
+[1] TRUE
+
+$converge2
+[1] TRUE
+
+> #### END: SMLE ####################################################################
+> 
+> validation_est = res_validation$coef[c(2, 8, 6, 5, 3, 4, 7),1]
+> validation_se = res_validation$coef[c(2, 8, 6, 5, 3, 4, 7),2]
+> naive_est = res_naive$coef[c(2, 8, 6, 5, 3, 4, 7),1]
+> naive_se = res_naive$coef[c(2, 8, 6, 5, 3, 4, 7),2]
+> sy_est = res_sy$CorrectEst[c(1, 7, 5, 4, 2, 3, 6),1]
+> sy_se = sqrt(diag(res_sy$VarCorrectEst)[c(1, 7, 5, 4, 2, 3, 6)])
+> smle_est = res_smle$coef[c(2, 8, 6, 5, 3, 4, 7),1]
+> smle_se = res_smle$coef[c(2, 8, 6, 5, 3, 4, 7),2]
+> 
+> tab2 = data.frame(cov=c("Date of ART initiation (per year)", 
++                         "Male", 
++                         paste("Site", c("A", "B", "C", "D", "E"))),
++ 				  ls_est=round(validation_est, 3),
++ 				  ls_ci=paste0("(", round(validation_est-z975*validation_se, 3), ",", round(validation_est+z975*validation_se, 3), ")"),
++                   naive_est=round(naive_est, 3),
++                   naive_ci=paste0("(", round(naive_est-z975*naive_se, 3), ", ", round(naive_est+z975*naive_se, 3), ")"), 
++                   sy_est=round(sy_est, 3),
++                   sy_ci=paste0("(", round(sy_est-z975*sy_se, 3), ", ", round(sy_est+z975*sy_se, 3), ")"),
++                   smle_est=round(smle_est, 3),
++                   smle_ci=paste0("(", round(smle_est-z975*smle_se, 3), ", ", round(smle_est+z975*smle_se, 3), ")"))
+> write.table(tab2, file="analysis_no_age_20200702.tab", quote=FALSE, row.names=FALSE, sep="\t")
+> 
+> 
+> 
+> proc.time()
+   user  system elapsed 
+ 28.644   0.532  28.179 
